@@ -40,8 +40,15 @@ def validar_dataframe(df: pd.DataFrame) -> List[LeadEntry]:
 
     registros_validos = []
     for idx, row in df.iterrows():
+        row_dict = row.to_dict()
+
+        # Conversão segura dos campos para evitar erros do tipo "float can't be interpreted as int"
+        row_dict["Valor"] = float(row_dict["Valor"]) if pd.notnull(row_dict["Valor"]) else None
+        row_dict["Data_de_Chegada"] = pd.to_datetime(row_dict["Data_de_Chegada"], errors="coerce").date() if pd.notnull(row_dict["Data_de_Chegada"]) else None
+        row_dict["Data_Fechamento"] = pd.to_datetime(row_dict["Data_Fechamento"], errors="coerce").date() if pd.notnull(row_dict["Data_Fechamento"]) else None
+
         try:
-            registro = LeadEntry(**row.to_dict())
+            registro = LeadEntry(**row_dict)
             registros_validos.append(registro)
         except ValidationError as e:
             print(f"[ERRO] Linha {idx + 2}: {e}")  # +2 por causa do cabeçalho
