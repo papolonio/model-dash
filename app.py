@@ -6,7 +6,7 @@ import os
 
 st.set_page_config(page_title="Prévia de Dashboard", layout="wide")
 
-st.title("🚀 Prévia de Dashboard - CRM")
+st.title("Prévia de Dashboard - CRM")
 st.markdown(
     """
     Bem-vindo! Aqui você pode ter uma **prévia de como os seus dados podem ser visualizados em um dashboard**.
