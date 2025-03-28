@@ -2,12 +2,11 @@ from pydantic import BaseModel, validator, ValidationError
 from typing import Optional, List
 from datetime import date
 import pandas as pd
-
 from config.settings import STATUS_VALIDOS, TEMPERATURA_VALIDA, COLUNAS_ESPERADAS
 
 class LeadEntry(BaseModel):
     Nome: str
-    Data_de_Chegada: date
+    Data_de_Chegada: Optional[date]
     Status: str
     Origem: str
     Temperatura: str
@@ -27,22 +26,17 @@ class LeadEntry(BaseModel):
             raise ValueError(f"Temperatura inválida: {v}")
         return v
 
-
 def validar_dataframe(df: pd.DataFrame) -> List[LeadEntry]:
     df.columns = [col.strip() for col in df.columns]
 
-    # Confere se todas as colunas obrigatórias existem
     if not all(col in df.columns for col in COLUNAS_ESPERADAS):
         raise ValueError("A planilha não contém todas as colunas obrigatórias.")
 
-    # Renomeia colunas para formato Pydantic (snake_case)
     df.columns = [col.replace(" ", "_") for col in df.columns]
 
     registros_validos = []
     for idx, row in df.iterrows():
         row_dict = row.to_dict()
-
-        # Conversão segura dos campos para evitar erros do tipo "float can't be interpreted as int"
         row_dict["Valor"] = float(row_dict["Valor"]) if pd.notnull(row_dict["Valor"]) else None
         row_dict["Data_de_Chegada"] = pd.to_datetime(row_dict["Data_de_Chegada"], errors="coerce").date() if pd.notnull(row_dict["Data_de_Chegada"]) else None
         row_dict["Data_Fechamento"] = pd.to_datetime(row_dict["Data_Fechamento"], errors="coerce").date() if pd.notnull(row_dict["Data_Fechamento"]) else None
@@ -51,6 +45,6 @@ def validar_dataframe(df: pd.DataFrame) -> List[LeadEntry]:
             registro = LeadEntry(**row_dict)
             registros_validos.append(registro)
         except ValidationError as e:
-            print(f"[ERRO] Linha {idx + 2}: {e}")  # +2 por causa do cabeçalho
+            print(f"[ERRO] Linha {idx + 2}: {e}")
 
     return registros_validos
