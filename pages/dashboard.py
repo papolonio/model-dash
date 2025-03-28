@@ -4,7 +4,7 @@ from utils.visualizations import exibir_cards, grafico_faturamento
 
 st.set_page_config(page_title="Dashboard", layout="wide")
 
-st.title("📊 Dashboard CRM")
+st.title("Dashboard CRM")
 
 if "dados_processados" not in st.session_state:
     st.warning("Nenhum dado carregado. Volte para a página inicial e envie sua planilha.")
@@ -13,8 +13,9 @@ if "dados_processados" not in st.session_state:
 df = pd.DataFrame(st.session_state["dados_processados"])
 
 st.subheader("📋 Dados recebidos")
-st.dataframe(df)
+st.dataframe(df)  # Debug visual dos dados carregados
 
+# === Cards e Gráfico ===
 exibir_cards(df)
 st.markdown("---")
 grafico_faturamento(df)
